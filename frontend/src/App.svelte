@@ -4,7 +4,7 @@
   import Counter from './lib/Counter.svelte'
 
   async function getQuizzes() {
-    let response = await fetch("https://localhost:3000/api/quizzes")
+    let response = await fetch("http://localhost:3000/api/quizzes")
     if (!response.ok) {
         alert("Request to getQuizzes endpoint failed.");
         return;
@@ -13,9 +13,21 @@
     let json = await response.json();
     console.log(json);
   }
+
+  function connect() {
+    let websocket = new WebSocket("ws://localhost:3000/ws");
+    websocket.onopen = () => {
+        console.log("opened websocket connection");
+    };
+
+    websocket.onmessage = (event) => {
+        console.log(event.data);
+    }
+  }
 </script>
 
-<button on:click={getQuizzes}> Get Quizzes </button>
+<button on:click={getQuizzes}> Get quizzes </button>
+<button on:click={connect}> Open WS connection </button>
 <main>
   <div>
     <a href="https://vite.dev" target="_blank" rel="noreferrer">
