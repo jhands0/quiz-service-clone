@@ -28,13 +28,17 @@
         console.log(event.data);
     }
   }
+
+  function hostQuiz(quiz) {
+    console.log(quiz);
+  }
 </script>
 
 <button on:click={getQuizzes}> Get quizzes </button>
 <button on:click={connect}> Open WS connection </button>
 
 {#each quizzes as quiz}
-    <QuizCard {quiz} />
+    <QuizCard on:host={() => hostQuiz(quiz)} quiz={quiz} />
 {/each}
 
 <Button>
