@@ -8,6 +8,7 @@ export class NetService {
         this.webSocket.onopen = () => {
             console.log('opened connection');
             this.sendPacket({
+                id: 0,
                 code: "1234",
                 name: "coolname123",
             })
@@ -19,12 +20,19 @@ export class NetService {
             const packetId = bytes[0];
 
             const packet = JSON.parse(this.textDecoder.decode(bytes.subarray(1)));
+
+            packet.id = packetId;
+
+            console.log(packetId);
+            console.log(packet);
         }
     }
 
     sendPacket(packet: any) {
-        const packetId = 1337;
-        const packetData = JSON.stringify(packet);
+        const packetId = packet.id;
+        const packetData = JSON.stringify(packet, (key, value) => {
+            key == "id" ? undefined : value
+        });
 
         const packetIdArray = new Uint8Array([packetId]);
         const packetDataArray = this.textEncoder.encode(packetData);
