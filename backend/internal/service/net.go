@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/gofiber/contrib/websocket"
@@ -25,6 +26,28 @@ type ConnectPacket struct {
 	Name string `json:"name"`
 }
 
+func (x *NetService) packetIdToPacket(packetId uint8) any {
+	switch packetId {
+	case 0:
+		{
+			return ConnectPacket{}
+		}
+	}
+
+	return nil
+}
+
+func (c *NetService) packetToPacketId(packet any) (uint8, error) {
+	switch packet.(type) {
+	case ConnectPacket:
+		{
+			return 0, nil
+		}
+	}
+
+	return 0, errors.New("invalid packet type")
+}
+
 func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) {
 	if len(msg) < 1 {
 		return
@@ -33,7 +56,11 @@ func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) 
 	packetId := msg[0]
 	data := msg[1:]
 
-	var packet ConnectPacket
+	packet := c.packetIdToPacket(packetId)
+	if packet == nil {
+		return
+	}
+
 	err := json.Unmarshal(data, &packet)
 	if err != nil {
 		fmt.Println(err)
@@ -54,7 +81,10 @@ func (c *NetService) SendPacket(connection *websocket.Conn, packet any) error {
 }
 
 func (c *NetService) PacketToBytes(packet any) ([]byte, error) {
-	var packetId uint8 = 0
+	packetId, err := c.packetToPacketId(packet)
+	if err != nil {
+		return nil, err
+	}
 
 	bytes, err := json.Marshal(packet)
 	if err != nil {
