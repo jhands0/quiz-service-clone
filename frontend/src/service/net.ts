@@ -3,15 +3,12 @@ export class NetService {
     private textDecoder: TextDecoder = new TextDecoder();
     private textEncoder: TextEncoder = new TextEncoder();
 
+    private onPacketCallback?: (packet: any) => void;
+
     connect() {
         this.webSocket = new WebSocket('ws://localhost:3000/ws')
         this.webSocket.onopen = () => {
             console.log('opened connection');
-            this.sendPacket({
-                id: 0,
-                code: "1234",
-                name: "coolname123",
-            })
         };
 
         this.webSocket.onmessage = async (event: MessageEvent) => {
@@ -25,14 +22,21 @@ export class NetService {
 
             console.log(packetId);
             console.log(packet);
+
+            if (this.onPacketCallback)
+                this.onPacketCallback(packet);
         }
+    }
+
+    onPacket(callback: (packet: any) => void) {
+        this.onPacketCallback = callback
     }
 
     sendPacket(packet: any) {
         const packetId = packet.id;
-        const packetData = JSON.stringify(packet, (key, value) => {
+        const packetData = JSON.stringify(packet, (key, value) => 
             key == "id" ? undefined : value
-        });
+        );
 
         const packetIdArray = new Uint8Array([packetId]);
         const packetDataArray = this.textEncoder.encode(packetData);
