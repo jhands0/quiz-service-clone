@@ -6,6 +6,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jhands0/kahoot-clone/internal/collection"
@@ -22,6 +23,7 @@ type App struct {
 	database   *mongo.Database
 
 	quizService *service.QuizService
+	netService  *service.NetService
 }
 
 func (a *App) Init() {
@@ -39,8 +41,8 @@ func (a *App) setupHttp() {
 	quizController := controller.Quiz(a.quizService)
 	app.Get("/api/quizzes", quizController.GetQuizzes)
 
-	//wsController := controller.Ws()
-	//app.Get("/ws", websocket.New(wsController.Ws))
+	wsController := controller.Ws(a.netService)
+	app.Get("/ws", websocket.New(wsController.Ws))
 
 	log.Fatal(app.Listen(":3000"))
 	a.httpServer = app
@@ -48,6 +50,7 @@ func (a *App) setupHttp() {
 
 func (a *App) setupServices() {
 	a.quizService = service.Quiz(collection.Quiz(a.database.Collection("quizzes")))
+	a.netService = service.Net(a.quizService)
 }
 
 func (a *App) setupDb() {
