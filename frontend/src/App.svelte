@@ -4,6 +4,7 @@
   import Counter from './lib/Counter.svelte'
     import Button from './lib/Button.svelte';
     import QuizCard from './lib/QuizCard.svelte';
+    import { NetService } from './service/net';
 
   let quizzes: {_id: string, name: string}[] = [];
 
@@ -22,15 +23,7 @@
   let msg = "";
 
   function connect() {
-    let websocket = new WebSocket("ws://localhost:3000/ws");
-    websocket.onopen = () => {
-        console.log("opened websocket connection");
-        websocket.send(`join:${code}`);
-    };
-
-    websocket.onmessage = (event) => {
-        console.log(event.data);
-    }
+    new NetService().connect();
   }
 
   function hostQuiz(quiz) {

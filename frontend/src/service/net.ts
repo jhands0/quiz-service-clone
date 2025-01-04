@@ -7,6 +7,10 @@ export class NetService {
         this.webSocket = new WebSocket('ws://localhost:3000/ws')
         this.webSocket.onopen = () => {
             console.log('opened connection');
+            this.sendPacket({
+                code: "1234",
+                name: "coolname123",
+            })
         };
 
         this.webSocket.onmessage = async (event: MessageEvent) => {
