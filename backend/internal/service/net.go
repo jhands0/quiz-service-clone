@@ -4,22 +4,23 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/jhands0/kahoot-clone/internal/entity"
+	"github.com/jhands0/kahoot-clone/internal/game"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type NetService struct {
 	quizService *QuizService
 
-	host *websocket.Conn
-	tick int
+	games []*game.Game
 }
 
 func Net(quizService *QuizService) *NetService {
 	return &NetService{
 		quizService: quizService,
+		games:       []*game.Game{},
 	}
 }
 
@@ -36,7 +37,7 @@ type QuestionShowPacket struct {
 	Question entity.QuizQuestion `json:"question"`
 }
 
-func (x *NetService) packetIdToPacket(packetId uint8) any {
+func (c *NetService) packetIdToPacket(packetId uint8) any {
 	switch packetId {
 	case 0:
 		{
@@ -62,6 +63,16 @@ func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 	return 0, errors.New("invalid packet type")
 }
 
+func (c *NetService) getGameByCode(code string) *game.Game {
+	for _, game := range c.games {
+		if game.Code == code {
+			return game
+		}
+	}
+
+	return nil
+}
+
 func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) {
 	if len(msg) < 1 {
 		return
@@ -84,34 +95,34 @@ func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) 
 	switch data := packet.(type) {
 	case *ConnectPacket:
 		{
-			fmt.Println(data.Name, "wants to join game ", data.Code)
+			game := c.getGameByCode(data.Code)
+			if game == nil {
+				return
+			}
+
+			game.OnPlayerJoin(data.Name, con)
 			break
 		}
 	case *HostGamePacket:
 		{
-			fmt.Println("User wants to host quiz ", data.QuizId)
-			go func() {
-				time.Sleep(time.Second * 5)
-				c.SendPacket(con, QuestionShowPacket{
-					Question: entity.QuizQuestion{
-						Name: "Placeholder Question Name",
-						Choices: []entity.QuizChoice{
-							{
-								Name: "Option 1",
-							},
-							{
-								Name: "Option 2",
-							},
-							{
-								Name: "Option 3",
-							},
-							{
-								Name: "Option 4",
-							},
-						},
-					},
-				})
-			}()
+			quizId, err := primitive.ObjectIDFromHex(data.QuizId)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			quiz, err := c.quizService.quizCollection.GetQuizById(quizId)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			if quiz == nil {
+				return
+			}
+
+			newGame := game.New(*quiz, con)
+			c.games = append(c.games, &newGame)
 			break
 		}
 	}
