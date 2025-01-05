@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	"backend/internal/entity"
+
 	"github.com/gofiber/contrib/websocket"
 	"github.com/google/uuid"
-	"github.com/jhands0/kahoot-clone/internal/entity"
 )
 
 type Player struct {

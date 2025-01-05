@@ -3,8 +3,9 @@ package controller
 import (
 	"log"
 
+	"backend/internal/service"
+
 	"github.com/gofiber/contrib/websocket"
-	"github.com/jhands0/kahoot-clone/internal/service"
 )
 
 type WebsocketController struct {

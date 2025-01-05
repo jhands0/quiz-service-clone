@@ -6,17 +6,16 @@ import (
 	"context"
 	"time"
 
+	"backend/internal/collection"
+	"backend/internal/controller"
+	"backend/internal/service"
+
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/jhands0/kahoot-clone/internal/collection"
-	"github.com/jhands0/kahoot-clone/internal/controller"
-	"github.com/jhands0/kahoot-clone/internal/service"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var quizCollection *mongo.Collection
 
 type App struct {
 	httpServer *fiber.App

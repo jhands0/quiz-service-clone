@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/jhands0/kahoot-clone/internal/collection"
-	"github.com/jhands0/kahoot-clone/internal/entity"
+	"backend/internal/collection"
+	"backend/internal/entity"
 )
 
 type QuizService struct {

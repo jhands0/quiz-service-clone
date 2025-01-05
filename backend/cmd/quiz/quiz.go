@@ -1,8 +1,8 @@
 package main
 
-import "github.com/jhands0/kahoot-clone/internal/"
+import "backend/internal"
 
 func main() {
-	app := internal.App()
+	app := internal.App{}
 	app.Init()
 }

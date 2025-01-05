@@ -1,4 +1,4 @@
-module github.com/jhands0/kahoot-clone
+module backend
 
 go 1.21.5
 

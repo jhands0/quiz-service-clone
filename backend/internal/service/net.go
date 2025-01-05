@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	"backend/internal/entity"
+	"backend/internal/game"
+
 	"github.com/gofiber/contrib/websocket"
-	"github.com/jhands0/kahoot-clone/internal/entity"
-	"github.com/jhands0/kahoot-clone/internal/game"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

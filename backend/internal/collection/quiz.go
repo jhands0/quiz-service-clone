@@ -3,7 +3,8 @@ package collection
 import (
 	"context"
 
-	"github.com/jhands0/kahoot-clone/internal/entity"
+	"backend/internal/entity"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

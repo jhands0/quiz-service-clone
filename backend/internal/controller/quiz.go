@@ -1,8 +1,9 @@
 package controller
 
 import (
+	"backend/internal/service"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/jhands0/kahoot-clone/internal/service"
 )
 
 type QuizController struct {
