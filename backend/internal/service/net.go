@@ -37,6 +37,10 @@ type QuestionShowPacket struct {
 	Question entity.QuizQuestion `json:"question"`
 }
 
+type ChangeGameStatePacket struct {
+	State game.GameState `json:"state"`
+}
+
 func (c *NetService) packetIdToPacket(packetId uint8) any {
 	switch packetId {
 	case 0:
@@ -57,6 +61,10 @@ func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 	case QuestionShowPacket:
 		{
 			return 2, nil
+		}
+	case ChangeGameStatePacket:
+		{
+			return 3, nil
 		}
 	}
 

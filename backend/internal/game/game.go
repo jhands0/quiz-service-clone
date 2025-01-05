@@ -15,10 +15,20 @@ type Player struct {
 	Connection *websocket.Conn
 }
 
+type GameState int
+
+const (
+	LobbyState GameState = iota
+	PlayState
+	RevealState
+	EndState
+)
+
 type Game struct {
 	Id      uuid.UUID
 	Quiz    entity.Quiz
 	Code    string
+	State   GameState
 	Players []Player
 
 	Host *websocket.Conn
@@ -33,6 +43,7 @@ func New(quiz entity.Quiz, host *websocket.Conn) Game {
 		Id:      uuid.New(),
 		Quiz:    quiz,
 		Code:    generateCode(),
+		State:   LobbyState,
 		Players: []Player{},
 		Host:    host,
 	}
