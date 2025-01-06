@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"backend/internal/entity"
-	"backend/internal/game"
+	//"backend/internal/game"
 
 	"github.com/gofiber/contrib/websocket"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,13 +15,13 @@ import (
 type NetService struct {
 	quizService *QuizService
 
-	games []*game.Game
+	games []*Game
 }
 
 func Net(quizService *QuizService) *NetService {
 	return &NetService{
 		quizService: quizService,
-		games:       []*game.Game{},
+		games:       []*Game{},
 	}
 }
 
@@ -39,7 +39,14 @@ type QuestionShowPacket struct {
 }
 
 type ChangeGameStatePacket struct {
-	State game.GameState `json:"state"`
+	State GameState `json:"state"`
+}
+
+type PlayerJoinPacket struct {
+	Player Player `json:"player"`
+}
+
+type StartGamePacket struct {
 }
 
 func (c *NetService) packetIdToPacket(packetId uint8) any {
@@ -51,6 +58,10 @@ func (c *NetService) packetIdToPacket(packetId uint8) any {
 	case 1:
 		{
 			return &HostGamePacket{}
+		}
+	case 5:
+		{
+			return &StartGamePacket{}
 		}
 	}
 
@@ -67,14 +78,28 @@ func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 		{
 			return 3, nil
 		}
+	case PlayerJoinPacket:
+		{
+			return 4, nil
+		}
 	}
 
 	return 0, errors.New("invalid packet type")
 }
 
-func (c *NetService) getGameByCode(code string) *game.Game {
+func (c *NetService) getGameByCode(code string) *Game {
 	for _, game := range c.games {
 		if game.Code == code {
+			return game
+		}
+	}
+
+	return nil
+}
+
+func (c *NetService) getGameByHost(host *websocket.Conn) *Game {
+	for _, game := range c.games {
+		if game.Host == host {
 			return game
 		}
 	}
@@ -130,8 +155,23 @@ func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) 
 				return
 			}
 
-			newGame := game.New(*quiz, con)
+			newGame := newGame(*quiz, con, c)
+			fmt.Println("new game: ", newGame.Code)
 			c.games = append(c.games, &newGame)
+
+			c.SendPacket(con, ChangeGameStatePacket{
+				State: LobbyState,
+			})
+			break
+		}
+	case *StartGamePacket:
+		{
+			game := c.getGameByHost(con)
+			if game == nil {
+				return
+			}
+
+			game.Start()
 			break
 		}
 	}

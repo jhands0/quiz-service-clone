@@ -1,3 +1,29 @@
+import type { Player } from '../model/quiz';
+
+export enum PacketTypes {
+    Connect,
+    HostGame,
+    QuestionShow,
+    ChangeGameState,
+    PlayerJoin,
+    StartGame
+}
+
+export enum GameState {
+    Lobby,
+    Play,
+    Reveal,
+    End
+}
+
+export interface ChangeGameStatePacket {
+    state: GameState;
+}
+
+export interface PlayerJoinPacket {
+    player: Player;
+}
+
 export class NetService {
     private webSocket!: WebSocket;
     private textDecoder: TextDecoder = new TextDecoder();
