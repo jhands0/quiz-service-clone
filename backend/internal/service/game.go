@@ -32,6 +32,7 @@ type Game struct {
 	Quiz    entity.Quiz
 	Code    string
 	State   GameState
+	Time    int
 	Players []Player
 
 	Host       *websocket.Conn
@@ -48,6 +49,7 @@ func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Gam
 		Quiz:       quiz,
 		Code:       generateCode(),
 		State:      LobbyState,
+		Time:       60,
 		Players:    []Player{},
 		Host:       host,
 		NetService: netService,
@@ -55,6 +57,32 @@ func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Gam
 }
 
 func (g *Game) Start() {
+	g.ChangeState(PlayState)
+	g.NetService.SendPacket(g.Host, QuestionShowPacket{
+		Question: entity.QuizQuestion{
+			Id:   "",
+			Name: "Question Name",
+			Choices: []entity.QuizChoice{
+				{
+					Id:   "a",
+					Name: "Option 1",
+				},
+				{
+					Id:   "a",
+					Name: "Option 1",
+				},
+				{
+					Id:   "a",
+					Name: "Option 1",
+				},
+				{
+					Id:   "a",
+					Name: "Option 1",
+				},
+			},
+		},
+	})
+
 	go func() {
 		for {
 			g.Tick()
@@ -64,7 +92,33 @@ func (g *Game) Start() {
 }
 
 func (g *Game) Tick() {
-	fmt.Println("tick")
+	g.Time--
+	g.NetService.SendPacket(g.Host, TickPacket{
+		Tick: g.Time,
+	})
+}
+
+func (g *Game) ChangeState(state GameState) {
+	g.State = state
+	g.BroadcastPacket(ChangeGameStatePacket{
+		State: state,
+	}, true)
+}
+
+func (g *Game) BroadcastPacket(packet any, includeHost bool) error {
+	for _, player := range g.Players {
+		err := g.NetService.SendPacket(player.Connection, packet)
+		if err != nil {
+			return err
+		}
+	}
+
+	if includeHost {
+		err := g.NetService.SendPacket(g.Host, packet)
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func (g *Game) OnPlayerJoin(name string, connection *websocket.Conn) {

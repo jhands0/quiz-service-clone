@@ -49,6 +49,10 @@ type PlayerJoinPacket struct {
 type StartGamePacket struct {
 }
 
+type TickPacket struct {
+	Tick int `json:"tick"`
+}
+
 func (c *NetService) packetIdToPacket(packetId uint8) any {
 	switch packetId {
 	case 0:
@@ -81,6 +85,10 @@ func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 	case PlayerJoinPacket:
 		{
 			return 4, nil
+		}
+	case TickPacket:
+		{
+			return 6, nil
 		}
 	}
 

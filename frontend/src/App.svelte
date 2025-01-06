@@ -3,7 +3,7 @@
   import viteLogo from '/vite.svg'
     import Button from './lib/Button.svelte';
     import QuizCard from './lib/QuizCard.svelte';
-    import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type PlayerJoinPacket } from './service/net';
+    import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type PlayerJoinPacket, type TickPacket } from './service/net';
     import type { QuizQuestion } from './model/quiz';
     import type { Quiz } from './model/quiz';
     import type { Player } from './model/quiz';
@@ -14,10 +14,16 @@
   let state = -1;
   let host = false;
 
+  let tick = 0;
+
   let players: Player[] = [];
 
   let netService = new NetService();
-  netService.connect();
+
+  setTimeout(() => {
+    netService.connect();
+  }, 500);
+
   netService.onPacket((packet: any) => {
     console.log(packet);
     switch (packet.id) {
@@ -35,6 +41,12 @@
         case PacketTypes.PlayerJoin: {
             let data = packet as PlayerJoinPacket;
             players = [...players, data.player];
+            break;
+        }
+
+        case PacketTypes.Tick: {
+            let data = packet as TickPacket;
+            tick = data.tick;
             break;
         }
     }
@@ -111,5 +123,21 @@ Message: {msg}
         {/each}
     {:else}
         <p> you have successfully connected </p>
+    {/if}
+{:else if state == GameState.Play}
+    {#if host}
+        Clock: {tick}
+        {#if currentQuestion != null}
+            <h2 class="text-4xl font-bold mt-8">{currentQuestion.name}</h2>
+            <div class="flex"> 
+                {#each currentQuestion.choices as choice}
+                    <div class="flex-1 bg-blue-400 text-center font-bold text-2x1 text-white justify-center items-center p-8">
+                        {choice.name}
+                    </div>
+                {/each}
+            </div>
+        {/if}
+    {:else}
+        press correct answer
     {/if}
 {/if}
