@@ -1,13 +1,14 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import Button from "./Button.svelte";
+    import type { Quiz } from "../model/quiz";
 
     const dispatch = createEventDispatcher();
     
-    export let quiz: {_id: string, name: string};
+    export let quiz: Quiz;
 
     function host() {
-        dispatch("host");
+        dispatch("host", quiz);
     }
 </script>
 

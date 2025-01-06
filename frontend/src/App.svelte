@@ -1,3 +1,4 @@
+<!--
 <script lang="ts">
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
@@ -7,6 +8,9 @@
     import type { QuizQuestion } from './model/quiz';
     import type { Quiz } from './model/quiz';
     import type { Player } from './model/quiz';
+    import PlayerView from './views/player/PlayerView.svelte';
+    import HostView from './views/host/HostView.svelte';
+    import Router from 'svelte-spa-router';
 
   let quizzes: {_id: string, name: string}[] = [];
 
@@ -53,10 +57,6 @@
   });
 
   async function getQuizzes() {
-    let response = await fetch("http://localhost:3000/api/quizzes")
-    if (!response.ok) {
-        alert("failed");
-        return;
     }
 
     let json = await response.json();
@@ -88,12 +88,21 @@
         quizId: quiz.id,
     })
   }
+  -->
+
+  let routes = {
+    "/": PlayerView,
+    "/host": HostView
+  };
 </script>
 
-<Button on:click={getQuizzes}> Get quizzes </Button>
-Message: {msg}
+<Router {routes} />
 
+<!--
 {#if state == -1}
+    <Button on:click={getQuizzes}> Get quizzes </Button>
+    Message: {msg}
+
     <div>
     {#each quizzes as quiz}
         <QuizCard on:host={() => hostQuiz(quiz)} quiz={quiz} />
@@ -141,3 +150,4 @@ Message: {msg}
         press correct answer
     {/if}
 {/if}
+-->
