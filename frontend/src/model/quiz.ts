@@ -12,11 +12,13 @@ export interface Player {
 export interface QuizQuestion {
     id: string;
     name: string;
-    choices: QuizChoices[];
+    choices: QuizChoice[];
 }
 
-export interface QuizChoices {
+export interface QuizChoice {
     id: string;
     name: string;
     correct: boolean;
 }
+
+export const COLORS = ["bg-pink-400", "bg-blue-400", "bg-yellow-400", "bg-purple-400"];
