@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"time"
@@ -13,10 +14,12 @@ import (
 )
 
 type Player struct {
-	Id         uuid.UUID       `json:"id"`
-	Name       string          `json:"name"`
-	Connection *websocket.Conn `json:"-"`
-	Answered   bool            `json:"-"`
+	Id                uuid.UUID       `json:"id"`
+	Name              string          `json:"name"`
+	Connection        *websocket.Conn `json:"-"`
+	Points            int             `json:"-"`
+	LastAwardedPoints int             `json:"-"`
+	Answered          bool            `json:"-"`
 }
 
 type GameState int
@@ -72,19 +75,33 @@ func (g *Game) Start() {
 	}()
 }
 
+func (g *Game) ResetPlayerAnswerStates() {
+	for _, player := range g.Players {
+		player.Answered = false
+	}
+}
+
 func (g *Game) NextQuestion() {
 	g.CurrentQuestion++
 
+	g.ResetPlayerAnswerStates()
 	g.ChangeState(PlayState)
 	g.Time = 60
 
 	g.NetService.SendPacket(g.Host, QuestionShowPacket{
-		Question: g.Quiz.Questions[g.CurrentQuestion],
+		Question: g.getCurrentQuestion(),
 	})
 }
 
 func (g *Game) Reveal() {
 	g.Time = 10
+
+	for _, player := range g.Players {
+		g.NetService.SendPacket(player.Connection, PlayerRevealPacket{
+			Points: player.LastAwardedPoints,
+		})
+	}
+
 	g.ChangeState(RevealState)
 }
 
@@ -167,7 +184,33 @@ func (g *Game) getAnsweredPlayers() []*Player {
 	return players
 }
 
-func (g *Game) OnPlayerAnswer(question int, player *Player) {
+func (g *Game) getCurrentQuestion() entity.QuizQuestion {
+	return g.Quiz.Questions[g.CurrentQuestion]
+}
+
+func (g *Game) isCorrectChoice(choiceIndex int) bool {
+	choices := g.getCurrentQuestion().Choices
+	if choiceIndex < 0 || choiceIndex >= len(choices) {
+		return false
+	}
+
+	return choices[choiceIndex].Correct
+}
+
+func (g *Game) getPointsReward() int {
+	answered := len(g.getAnsweredPlayers())
+	orderReward := 5000 - (1000 * math.Min(4, float64(answered)))
+	timeReward := g.Time * (1000 / 60)
+
+	return int(orderReward) + timeReward
+}
+
+func (g *Game) OnPlayerAnswer(choice int, player *Player) {
+	if g.isCorrectChoice(choice) {
+		player.LastAwardedPoints = g.getPointsReward()
+		player.Points += player.LastAwardedPoints
+	}
+
 	player.Answered = true
 
 	if len(g.getAnsweredPlayers()) == len(g.Players) {
