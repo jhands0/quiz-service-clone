@@ -16,6 +16,7 @@ type Player struct {
 	Id         uuid.UUID       `json:"id"`
 	Name       string          `json:"name"`
 	Connection *websocket.Conn `json:"-"`
+	Answered   bool            `json:"-"`
 }
 
 type GameState int
@@ -33,7 +34,7 @@ type Game struct {
 	Code    string
 	State   GameState
 	Time    int
-	Players []Player
+	Players []*Player
 
 	Host       *websocket.Conn
 	NetService *NetService
@@ -50,7 +51,7 @@ func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Gam
 		Code:       generateCode(),
 		State:      LobbyState,
 		Time:       60,
-		Players:    []Player{},
+		Players:    []*Player{},
 		Host:       host,
 		NetService: netService,
 	}
@@ -130,7 +131,7 @@ func (g *Game) OnPlayerJoin(name string, connection *websocket.Conn) {
 		Connection: connection,
 	}
 
-	g.Players = append(g.Players, player)
+	g.Players = append(g.Players, &player)
 
 	g.NetService.SendPacket(connection, ChangeGameStatePacket{
 		State: g.State,
@@ -139,4 +140,20 @@ func (g *Game) OnPlayerJoin(name string, connection *websocket.Conn) {
 	g.NetService.SendPacket(g.Host, PlayerJoinPacket{
 		Player: player,
 	})
+}
+
+func (g *Game) getAnsweredPlayers() []*Player {
+	players := []*Player{}
+
+	for _, player := range g.Players {
+		if player.Answered {
+			players = append(players, player)
+		}
+	}
+
+	return players
+}
+
+func (g *Game) OnPlayerAnswer(question int, player *Player) {
+	player.Answered = true
 }
