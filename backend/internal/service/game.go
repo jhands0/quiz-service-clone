@@ -29,12 +29,13 @@ const (
 )
 
 type Game struct {
-	Id      uuid.UUID
-	Quiz    entity.Quiz
-	Code    string
-	State   GameState
-	Time    int
-	Players []*Player
+	Id              uuid.UUID
+	Quiz            entity.Quiz
+	CurrentQuestion int
+	Code            string
+	State           GameState
+	Time            int
+	Players         []*Player
 
 	Host       *websocket.Conn
 	NetService *NetService
@@ -46,12 +47,14 @@ func generateCode() string {
 
 func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Game {
 	return Game{
-		Id:         uuid.New(),
-		Quiz:       quiz,
-		Code:       generateCode(),
-		State:      LobbyState,
-		Time:       60,
-		Players:    []*Player{},
+		Id:              uuid.New(),
+		Quiz:            quiz,
+		CurrentQuestion: -1,
+		Code:            generateCode(),
+		State:           LobbyState,
+		Time:            60,
+		Players:         []*Player{},
+
 		Host:       host,
 		NetService: netService,
 	}
@@ -59,30 +62,7 @@ func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Gam
 
 func (g *Game) Start() {
 	g.ChangeState(PlayState)
-	g.NetService.SendPacket(g.Host, QuestionShowPacket{
-		Question: entity.QuizQuestion{
-			Id:   "",
-			Name: "Question Name",
-			Choices: []entity.QuizChoice{
-				{
-					Id:   "a",
-					Name: "Option 1",
-				},
-				{
-					Id:   "a",
-					Name: "Option 1",
-				},
-				{
-					Id:   "a",
-					Name: "Option 1",
-				},
-				{
-					Id:   "a",
-					Name: "Option 1",
-				},
-			},
-		},
-	})
+	g.NextQuestion()
 
 	go func() {
 		for {
@@ -92,11 +72,42 @@ func (g *Game) Start() {
 	}()
 }
 
+func (g *Game) NextQuestion() {
+	g.CurrentQuestion++
+
+	g.ChangeState(PlayState)
+	g.Time = 60
+
+	g.NetService.SendPacket(g.Host, QuestionShowPacket{
+		Question: g.Quiz.Questions[g.CurrentQuestion],
+	})
+}
+
+func (g *Game) Reveal() {
+	g.Time = 10
+	g.ChangeState(RevealState)
+}
+
 func (g *Game) Tick() {
 	g.Time--
 	g.NetService.SendPacket(g.Host, TickPacket{
 		Tick: g.Time,
 	})
+
+	if g.Time == 0 {
+		switch g.State {
+		case PlayState:
+			{
+				g.Reveal()
+				break
+			}
+		case RevealState:
+			{
+				g.NextQuestion()
+				break
+			}
+		}
+	}
 }
 
 func (g *Game) ChangeState(state GameState) {
@@ -120,6 +131,8 @@ func (g *Game) BroadcastPacket(packet any, includeHost bool) error {
 			return err
 		}
 	}
+
+	return nil
 }
 
 func (g *Game) OnPlayerJoin(name string, connection *websocket.Conn) {
@@ -156,4 +169,9 @@ func (g *Game) getAnsweredPlayers() []*Player {
 
 func (g *Game) OnPlayerAnswer(question int, player *Player) {
 	player.Answered = true
+
+	if len(g.getAnsweredPlayers()) == len(g.Players) {
+		fmt.Println("debug: all players have answered!")
+		g.Reveal()
+	}
 }
