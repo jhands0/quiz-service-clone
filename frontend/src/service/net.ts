@@ -9,12 +9,14 @@ export enum PacketTypes {
     StartGame,
     Tick,
     Answer,
-    PlayerReveal
+    PlayerReveal,
+    Leaderboard
 }
 
 export enum GameState {
     Lobby,
     Play,
+    Intermission,
     Reveal,
     End
 }
@@ -49,11 +51,15 @@ export interface TickPacket extends Packet {
 }
 
 export interface QuestionAnswerPacket extends Packet {
-    question: number,
+    question: number;
 }
 
 export interface PlayerRevealPacket extends Packet {
-    points: number,
+    points: number;
+}
+
+export interface LeaderboardPacket extends Packet {
+    points: Record<string, number>;
 }
 
 export class NetService {

@@ -61,6 +61,10 @@ type PlayerRevealPacket struct {
 	Points int `json:"points"`
 }
 
+type LeaderboardPacket struct {
+	Points map[string]int `json:"points"`
+}
+
 func (c *NetService) packetIdToPacket(packetId uint8) any {
 	switch packetId {
 	case 0:
@@ -105,6 +109,10 @@ func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 	case PlayerRevealPacket:
 		{
 			return 8, nil
+		}
+	case LeaderboardPacket:
+		{
+			return 9, nil
 		}
 	}
 

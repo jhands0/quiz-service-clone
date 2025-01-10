@@ -27,6 +27,7 @@ type GameState int
 const (
 	LobbyState GameState = iota
 	PlayState
+	IntermissionState
 	RevealState
 	EndState
 )
@@ -39,6 +40,7 @@ type Game struct {
 	State           GameState
 	Time            int
 	Players         []*Player
+	Ended           bool
 
 	Host       *websocket.Conn
 	NetService *NetService
@@ -57,6 +59,7 @@ func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Gam
 		State:           LobbyState,
 		Time:            60,
 		Players:         []*Player{},
+		Ended:           false,
 
 		Host:       host,
 		NetService: netService,
@@ -69,6 +72,9 @@ func (g *Game) Start() {
 
 	go func() {
 		for {
+			if g.Ended {
+				return
+			}
 			g.Tick()
 			time.Sleep(time.Second)
 		}
@@ -81,8 +87,18 @@ func (g *Game) ResetPlayerAnswerStates() {
 	}
 }
 
+func (g *Game) End() {
+	g.Ended = true
+	g.ChangeState(EndState)
+}
+
 func (g *Game) NextQuestion() {
 	g.CurrentQuestion++
+
+	if g.CurrentQuestion >= len(g.Quiz.Questions) {
+		g.End()
+		return
+	}
 
 	g.ResetPlayerAnswerStates()
 	g.ChangeState(PlayState)
@@ -94,7 +110,7 @@ func (g *Game) NextQuestion() {
 }
 
 func (g *Game) Reveal() {
-	g.Time = 10
+	g.Time = 5
 
 	for _, player := range g.Players {
 		g.NetService.SendPacket(player.Connection, PlayerRevealPacket{
@@ -120,11 +136,21 @@ func (g *Game) Tick() {
 			}
 		case RevealState:
 			{
+				g.Intermission()
+				break
+			}
+		case IntermissionState:
+			{
 				g.NextQuestion()
 				break
 			}
 		}
 	}
+}
+
+func (g *Game) Intermission() {
+	g.Time = 30
+	g.ChangeState(IntermissionState)
 }
 
 func (g *Game) ChangeState(state GameState) {
