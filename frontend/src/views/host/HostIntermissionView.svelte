@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Button from "../../lib/Button.svelte";
     import Leaderboard from "../../lib/Leaderboard.svelte";
     import { HostGame, leaderboard } from "../../service/host/host";

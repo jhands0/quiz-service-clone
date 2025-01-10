@@ -1,6 +1,6 @@
 <script lang="ts">
     import { GameState } from "../../service/net";
-    import { PlayerGame } from "../../service/player/player";
+    import { PlayerGame, state } from "../../service/player/player";
     import PlayerJoinView from "./PlayerJoinView.svelte";
     import PlayerLobbyView from "./PlayerLobbyView.svelte";
     import PlayerPlayView from "./PlayerPlayView.svelte";

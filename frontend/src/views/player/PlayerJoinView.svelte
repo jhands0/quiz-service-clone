@@ -20,7 +20,7 @@
         <h2 class="text-white font-bold text-5x1 text-center"> Quiz </h2>
         <div class="flex flex-col gap-2 mt-10 items-center">
             <input bind:value={code} type="text" placeholder="Game code" class="p-2 rounded">
-            <input bind:value={name} type="text" placeholder="Game code" class="p-2 rounded">
+            <input bind:value={name} type="text" placeholder="Name" class="p-2 rounded">
             <Button> Join game </Button>
         </div>
     </div>
