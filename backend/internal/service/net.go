@@ -62,7 +62,7 @@ type PlayerRevealPacket struct {
 }
 
 type LeaderboardPacket struct {
-	Points map[string]int `json:"points"`
+	Points []LeaderboardEntry `json:"points"`
 }
 
 func (c *NetService) packetIdToPacket(packetId uint8) any {
@@ -215,7 +215,7 @@ func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) 
 				return
 			}
 
-			game.Start()
+			game.StartOrSkip()
 			break
 		}
 	case *QuestionAnswerPacket:

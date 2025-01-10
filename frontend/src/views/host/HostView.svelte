@@ -2,6 +2,7 @@
     import type { Quiz } from "../../model/quiz";
     import { HostGame, state } from "../../service/host/host";
     import { GameState } from "../../service/net";
+    import HostEndView from "./HostEndView.svelte";
     import HostIntermissionView from "./HostIntermissionView.svelte";
     import HostLobbyView from "./HostLobbyView.svelte";
     import HostPlayView from "./HostPlayView.svelte";
@@ -19,7 +20,8 @@
         [GameState.Lobby]: HostLobbyView,
         [GameState.Play]: HostPlayView,
         [GameState.Intermission]: HostIntermissionView,
-        [GameState.Reveal]: HostPlayView
+        [GameState.Reveal]: HostPlayView,
+        [GameState.End]: HostEndView
     }
 </script>
 

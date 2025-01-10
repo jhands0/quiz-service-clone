@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"sort"
 	"strconv"
 	"time"
 
@@ -46,6 +47,11 @@ type Game struct {
 	NetService *NetService
 }
 
+type LeaderboardEntry struct {
+	Name   string `json:"name"`
+	Points int    `json:"points"`
+}
+
 func generateCode() string {
 	return strconv.Itoa(100000 + rand.Intn(900000))
 }
@@ -63,6 +69,14 @@ func newGame(quiz entity.Quiz, host *websocket.Conn, netService *NetService) Gam
 
 		Host:       host,
 		NetService: netService,
+	}
+}
+
+func (g *Game) StartOrSkip() {
+	if g.State == LobbyState {
+		g.Start()
+	} else {
+		g.NextQuestion()
 	}
 }
 
@@ -151,6 +165,23 @@ func (g *Game) Tick() {
 func (g *Game) Intermission() {
 	g.Time = 30
 	g.ChangeState(IntermissionState)
+}
+
+func (g *Game) getLeaderboard() []LeaderboardEntry {
+	sort.Slice(g.Players, func(i, j int) bool {
+		return g.Players[i].Points > g.Players[j].Points
+	})
+
+	leaderboard := []LeaderboardEntry{}
+	for i := 0; i < int(math.Min(3, float64(len(g.Players)))); i++ {
+		player := g.Players[i]
+		leaderboard = append(leaderboard, LeaderboardEntry{
+			Name:   player.Name,
+			Points: player.Points,
+		})
+	}
+
+	return leaderboard
 }
 
 func (g *Game) ChangeState(state GameState) {

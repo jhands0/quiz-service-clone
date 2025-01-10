@@ -1,11 +1,11 @@
-import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type HostGamePacket, type Packet, type PlayerJoinPacket, type TickPacket, type QuestionShowPacket, type LeaderboardPacket } from "../net";
+import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type HostGamePacket, type Packet, type PlayerJoinPacket, type TickPacket, type QuestionShowPacket, type LeaderboardPacket, type LeaderboardEntry } from "../net";
 import type { Player, QuizQuestion } from "../../model/quiz";
 import { writable, type Writable } from "svelte/store";
 
 export const state: Writable<GameState> = writable(GameState.Lobby);
 export const players: Writable<Player[]> = writable([]);
 export const tick: Writable<number> = writable(0);
-export const leaderboard: Writable<Record<string, number>> = writable(());
+export const leaderboard: Writable<LeaderboardEntry[]> = writable([]);
 export const currentQuestion: Writable<QuizQuestion | null> = writable(null);
 
 export class HostGame {
