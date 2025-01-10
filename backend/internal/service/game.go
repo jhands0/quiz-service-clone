@@ -209,6 +209,8 @@ func (g *Game) OnPlayerAnswer(choice int, player *Player) {
 	if g.isCorrectChoice(choice) {
 		player.LastAwardedPoints = g.getPointsReward()
 		player.Points += player.LastAwardedPoints
+	} else {
+		player.LastAwardedPoints = 0
 	}
 
 	player.Answered = true
