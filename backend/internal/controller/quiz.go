@@ -17,17 +17,16 @@ func Quiz(quizService *service.QuizService) QuizController {
 	}
 }
 
-func (c QuizController) getQuizById(ctx *fiber.Ctx) error {
+func (c QuizController) GetQuizById(ctx *fiber.Ctx) error {
 	quizIdStr := ctx.Params("quizId")
 	quizId, err := primitive.ObjectIDFromHex(quizIdStr)
 	if err != nil {
 		return ctx.SendStatus(fiber.StatusBadRequest)
 	}
 
-	quiz, err := c.quizService.GetQuizById(quizId) {
-		if err != nil {
-			return err
-		}
+	quiz, err := c.quizService.GetQuizById(quizId)
+	if err != nil {
+		return err
 	}
 
 	if quiz == nil {
@@ -36,7 +35,7 @@ func (c QuizController) getQuizById(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(quiz)
 }
- 
+
 func (c QuizController) GetQuizzes(ctx *fiber.Ctx) error {
 	quizzes, err := c.quizService.GetQuizzes()
 	if err != nil {

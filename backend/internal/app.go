@@ -39,7 +39,7 @@ func (a *App) setupHttp() {
 
 	quizController := controller.Quiz(a.quizService)
 	app.Get("/api/quizzes", quizController.GetQuizzes)
-	app.Get("/api/quizzes/:quizId", quizController.getQuizById)
+	app.Get("/api/quizzes/:quizId", quizController.GetQuizById)
 
 	wsController := controller.Ws(a.netService)
 	app.Get("/ws", websocket.New(wsController.Ws))
