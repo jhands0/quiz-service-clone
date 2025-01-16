@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/internal/uuid"
 )
 
 type NetService struct {
@@ -44,6 +45,10 @@ type ChangeGameStatePacket struct {
 
 type PlayerJoinPacket struct {
 	Player Player `json:"player"`
+}
+
+type PlayerDisconnectPacket struct {
+	PlayerId uuid.UUID `json:"playerId"`
 }
 
 type StartGamePacket struct {
@@ -118,6 +123,10 @@ func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 		{
 			return 9, nil
 		}
+	case PlayerDisconnectPacket:
+		{
+			return 10, nil
+		}
 	}
 
 	return 0, errors.New("invalid packet type")
@@ -153,6 +162,15 @@ func (c *NetService) getGameByPlayer(con *websocket.Conn) (*Game, *Player) {
 	}
 
 	return nil, nil
+}
+
+func (c *NetService) OnDisconnect(con *websocket.Conn) {
+	game, player := c.getGameByPlayer(con)
+	if game == nil {
+		return
+	}
+
+	game.OnPlayerDisconnect(player)
 }
 
 func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) {

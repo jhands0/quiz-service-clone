@@ -10,7 +10,8 @@ export enum PacketTypes {
     Tick,
     Answer,
     PlayerReveal,
-    Leaderboard
+    Leaderboard,
+    PlayerDisconnect
 }
 
 export enum GameState {
@@ -44,6 +45,10 @@ export interface ChangeGameStatePacket extends Packet {
 
 export interface PlayerJoinPacket extends Packet {
     player: Player;
+}
+
+export interface PlayerDisconnectPacket extends Packet {
+    playerId: string;
 }
 
 export interface TickPacket extends Packet {

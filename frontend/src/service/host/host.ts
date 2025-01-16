@@ -1,4 +1,4 @@
-import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type HostGamePacket, type Packet, type PlayerJoinPacket, type TickPacket, type QuestionShowPacket, type LeaderboardPacket, type LeaderboardEntry } from "../net";
+import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type HostGamePacket, type Packet, type PlayerJoinPacket, type TickPacket, type QuestionShowPacket, type LeaderboardPacket, type LeaderboardEntry, type PlayerDisconnectPacket } from "../net";
 import type { Player, QuizQuestion } from "../../model/quiz";
 import { writable, type Writable } from "svelte/store";
 
@@ -66,6 +66,12 @@ export class HostGame {
             case PacketTypes.Leaderboard: {
                 let data = packet as LeaderboardPacket;
                 leaderboard.set(data.points);
+                break;
+            }
+
+            case PacketTypes.PlayerDisconnect: {
+                let data = packet as PlayerDisconnectPacket;
+                players.update(v => v.filter(p => p.id != data.playerId))
                 break;
             }
         }
