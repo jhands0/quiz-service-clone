@@ -1,6 +1,7 @@
 <script lang="ts">
     import Button from "../../lib/Button.svelte";
     import EditSidebar from "../../lib/edit/EditSidebar.svelte";
+    import EditQuestion from "../../lib/edit/EditQuestion.svelte";
     import type { Quiz, QuizQuestion } from "../../model/quiz";
     import { apiService } from "../../service/api";
 
@@ -8,6 +9,17 @@
 
     let quiz: Quiz | null;
     let selectedQuestion: QuizQuestion | null = null;
+
+    function onQuestionDelete() {
+        if (quiz == null) {
+            return;
+        }
+        quiz.questions = quiz.questions.filter (
+            (q) => q.id != selectedQuestion?.id,
+        );
+
+        selectedQuestion = null;
+    }
 
     (async function () {
         quiz = await apiService.getQuizById(params["quizId"]);
@@ -28,7 +40,7 @@
     <div class="flex">
         <EditSidebar bind:questions={quiz.questions} bind:selectedQuestion />
         {#if selectedQuestion != null}
-            <EditQuestion bind:selectedQuestion/>
+            <EditQuestion on:delete={onQuestionDelete} on:change={() => quiz = quiz} bind:selectedQuestion/>
         {/if}
     </div>
 {:else}
