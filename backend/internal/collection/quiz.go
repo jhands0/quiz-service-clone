@@ -51,3 +51,13 @@ func (c QuizCollection) GetQuizById(id primitive.ObjectID) (*entity.Quiz, error)
 
 	return &quiz, nil
 }
+
+func (c QuizCollection) UpdateQuiz(quiz entity.Quiz) error {
+	_, err := c.collection.UpdateOne(context.Background(), bson.M{
+		"_id": quiz.Id,
+	}, bson.M{
+		"$set": quiz,
+	})
+
+	return err
+}

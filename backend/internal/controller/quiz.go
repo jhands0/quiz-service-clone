@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"backend/internal/entity"
 	"backend/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,6 +16,30 @@ func Quiz(quizService *service.QuizService) QuizController {
 	return QuizController{
 		quizService: quizService,
 	}
+}
+
+type UpdateQuizRequest struct {
+	Name      string                `json:"name"`
+	Questions []entity.QuizQuestion `json:"questions"`
+}
+
+func (c QuizController) UpdateQuizById(ctx *fiber.Ctx) error {
+	quizIdStr := ctx.Params("quizId")
+	quizId, err := primitive.ObjectIDFromHex(quizIdStr)
+	if err != nil {
+		return ctx.SendStatus(fiber.StatusBadRequest)
+	}
+
+	var req UpdateQuizRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return err
+	}
+
+	if err := c.quizService.UpdateQuiz(quizId, req.Name, req.Questions); err != nil {
+		return err
+	}
+
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func (c QuizController) GetQuizById(ctx *fiber.Ctx) error {

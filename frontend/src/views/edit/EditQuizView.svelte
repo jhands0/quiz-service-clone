@@ -26,7 +26,11 @@
     })();
 
     async function save() {
+        if (quiz == null) {
+            return;
+        }
 
+        await apiService.saveQuiz(quiz.id, quiz);
     }
 </script>
 
