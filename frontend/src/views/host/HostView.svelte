@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Quiz } from "../../model/quiz";
-    import { HostGame, state } from "../../service/host/host";
+    import { gameCode, HostGame, state } from "../../service/host/host";
     import { GameState } from "../../service/net";
     import HostEndView from "./HostEndView.svelte";
     import HostIntermissionView from "./HostIntermissionView.svelte";
@@ -13,7 +13,6 @@
 
     function onHost(event: {detail: Quiz}) {
         game.hostQuiz(event.detail.id);
-        active = true;
     }
 
     let views: Record<GameState, any> = {
@@ -25,7 +24,7 @@
     }
 </script>
 
-{#if active}
+{#if $gameCode != null}
     <svelte:component this={views[$state]} {game} />
 {:else}
     <HostQuizListView on:host={onHost} />

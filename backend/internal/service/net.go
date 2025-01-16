@@ -90,6 +90,10 @@ func (c *NetService) packetIdToPacket(packetId uint8) any {
 
 func (c *NetService) packetToPacketId(packet any) (uint8, error) {
 	switch packet.(type) {
+	case HostGamePacket:
+		{
+			return 1, nil
+		}
 	case QuestionShowPacket:
 		{
 			return 2, nil
@@ -203,8 +207,12 @@ func (c *NetService) OnIncomingMessage(con *websocket.Conn, mt int, msg []byte) 
 			fmt.Println("new game: ", newGame.Code)
 			c.games = append(c.games, &newGame)
 
+			c.SendPacket(con, HostGamePacket{
+				QuizId: newGame.Code,
+			})
+
 			c.SendPacket(con, ChangeGameStatePacket{
-				State: LobbyState,
+				State: newGame.State,
 			})
 			break
 		}

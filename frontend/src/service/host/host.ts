@@ -2,6 +2,7 @@ import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type Ho
 import type { Player, QuizQuestion } from "../../model/quiz";
 import { writable, type Writable } from "svelte/store";
 
+export const gameCode: Writable<string | null> = writable(null);
 export const state: Writable<GameState> = writable(GameState.Lobby);
 export const players: Writable<Player[]> = writable([]);
 export const tick: Writable<number> = writable(0);
@@ -32,6 +33,12 @@ export class HostGame {
 
     onPacket(packet: Packet) {
         switch(packet.id) {
+            case PacketTypes.HostGame: {
+                let data = packet as HostGamePacket;
+                gameCode.set(data.quizId);
+                break;
+            }
+
             case PacketTypes.ChangeGameState: {
                 let data = packet as ChangeGameStatePacket;
                 state.set(data.state);
