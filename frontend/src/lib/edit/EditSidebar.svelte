@@ -7,7 +7,33 @@
     export let selectedQuestion: QuizQuestion | null;
 
     function addNew() {
-
+        questions = [...questions, {
+            id: crypto.randomUUID(),
+            name: "Question",
+            time: 60,
+            choices: [
+                {
+                    id: crypto.randomUUID(),
+                    name: "",
+                    correct: false,
+                },
+                {
+                    id: crypto.randomUUID(),
+                    name: "",
+                    correct: false,
+                },
+                {
+                    id: crypto.randomUUID(),
+                    name: "",
+                    correct: false,
+                },
+                {
+                    id: crypto.randomUUID(),
+                    name: "",
+                    correct: false,
+                }
+            ]
+        }];
     }
 </script>
 
