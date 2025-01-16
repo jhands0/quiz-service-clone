@@ -12,6 +12,7 @@ export interface Player {
 export interface QuizQuestion {
     id: string;
     name: string;
+    time: number;
     choices: QuizChoice[];
 }
 

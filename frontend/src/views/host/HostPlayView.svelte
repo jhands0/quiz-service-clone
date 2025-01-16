@@ -3,6 +3,7 @@
     import { type HostGame, tick, currentQuestion, state } from "../../service/host/host";
     import { COLORS, type QuizChoice } from "../../model/quiz";
     import { GameState } from "../../service/net";
+    import Clock from "../../lib/Clock.svelte";
 
     export let game: HostGame;
 
@@ -22,9 +23,9 @@
         </div>
         <div class="flex-1 flex flex-col justify-center pl-4">
             <div class="flex justify-between items-center">
-                <div class="bg-purple-500 text-white text-3x1 w-16 h-16 rounded-full flex items-center justify-center ml-8">
-                    {$tick}
-                </div>
+                <Clock>
+                    <span class="text-3xl"> {$tick} </span>
+                </Clock>
                 <img alt="center" class="max-w-[500px]"/>
                 <div class="w-24"></div>
             </div>

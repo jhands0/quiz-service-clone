@@ -3,6 +3,7 @@
     import { COLORS, type QuizQuestion } from "../../model/quiz";
     import Button from "../Button.svelte";
     import QuizChoiceCard from "../play/QuizChoiceCard.svelte";
+    import Clock from "../Clock.svelte";
 
     const dispatch = createEventDispatcher();
     
@@ -10,6 +11,11 @@
 
     function onDelete() {
         dispatch('delete');
+    }
+
+    function onTimeChange(e: Event) {
+        let target = e.target as HTMLInputElement;
+        selectedQuestion.time = parseInt(target.value);
     }
 </script>
 
@@ -24,7 +30,10 @@
         </div>
 
         <div class="flex-1 flex flex-col justify-center pl-4">
-            <div class="flex justify-center items-center">
+            <div class="flex justify-between items-center">
+                <Clock>
+                    <input on:change={onTimeChange} value={selectedQuestion.time} type="text" class="w-[70%] text-base p-2 bg-purple-500 text-center text-white">
+                </Clock>
                 <img src="https://placehold.co/500x250" alt="center" class="max-w-[500px]" />
             </div>
         </div>
