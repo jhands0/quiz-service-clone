@@ -9,8 +9,8 @@ import (
 	//"backend/internal/game"
 
 	"github.com/gofiber/contrib/websocket"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/internal/uuid"
 )
 
 type NetService struct {
