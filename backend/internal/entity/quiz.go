@@ -5,7 +5,7 @@ import (
 )
 
 type Quiz struct {
-	Id        primitive.ObjectID `json:"is" bson:"_id"`
+	Id        primitive.ObjectID `json:"id" bson:"_id"`
 	Name      string             `json:"name"`
 	Questions []QuizQuestion     `json:"questions"`
 }
