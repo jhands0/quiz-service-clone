@@ -1,0 +1,23 @@
+version: '3'
+services:
+
+  database:
+    image: mongo:8.0.4
+    environment:
+      MONGO_INITDB_DATABASE: quiz
+    ports:
+      - 27017:27017
+
+  frontend:
+    image: quiz-clone-frontend:latest
+    environment:
+      PORT: 5173
+    ports:
+      - 5173:5173
+
+  frontend:
+    image: quiz-clone-backend:latest
+    environment:
+      MONGODB_URL: mongodb://localhost:27017/quiz
+    ports:
+      - 3000:3000
