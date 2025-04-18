@@ -20,7 +20,7 @@ COPY backend/ .
 RUN npm run build
 
 # Expose the port the frontend in running on
-# TODO: Update the static :3000 port with this env variable
+# TODO: Update the static :5173 port with this env variable
 EXPOSE $PORT
 
 # Run the frontend server
