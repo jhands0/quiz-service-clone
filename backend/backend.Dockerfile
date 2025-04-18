@@ -14,7 +14,7 @@ COPY backend/ .
 RUN go build
 
 # Expose the port the backend in running on
-# TODO: Update the static :8080 port with this env variable
+# TODO: Update the static :3000 port with this env variable
 EXPOSE $PORT
 
 # Run the backend server
