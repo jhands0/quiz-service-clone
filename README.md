@@ -4,8 +4,7 @@ A self hostable kahoot clone written in Svelte and Go
 
 ### Built With
 
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Go][Go.dev]][Go-url]
+[![Svelte][Svelte.dev]][Svelte-url][![Go][Go.dev]][Go-url]
 
 ### Installation
 
