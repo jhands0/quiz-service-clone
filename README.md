@@ -4,7 +4,7 @@ A self hostable kahoot clone written in Svelte and Go
 
 ### Built With
 
-[![Svelte][Svelte.dev]][Svelte-url][![Go][Go.dev]][Go-url]
+[![Svelte][Svelte.dev]][Svelte-url] [![Go][Go.dev]][Go-url]
 
 ### Installation
 
@@ -22,7 +22,7 @@ A self hostable kahoot clone written in Svelte and Go
 
 3. Build the frontend docker image
     ``` bash
-    $ docker build --file=backend/frontend.dockerfile -t quiz-clone-frontend .
+    $ docker build --file=frontend/frontend.dockerfile -t quiz-clone-frontend .
     ```
 
 4. Run the docker-compose.yaml file
