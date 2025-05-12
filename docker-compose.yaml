@@ -15,7 +15,7 @@ services:
     ports:
       - 5173:5173
 
-  frontend:
+  backend:
     image: quiz-clone-backend:latest
     environment:
       MONGODB_URL: mongodb://localhost:27017/quiz
